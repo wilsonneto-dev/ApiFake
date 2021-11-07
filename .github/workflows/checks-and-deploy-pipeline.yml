@@ -1,0 +1,74 @@
+name: Checks, Build, Publish, Deploy
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      APP_FOLDER: ApiFake
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup .NET Core SDK '5.0.x'
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: '5.0.x'
+
+      - name: Install dependencies
+        run: |
+          cd ${{ env.APP_FOLDER }} 
+          dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal
+
+  build:
+    name: Build Image and Push to ACR
+    needs: [checks]
+    runs-on: ubuntu-latest
+    env:
+      APP_FOLDER: ApiFake
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker Login - Docker Hub
+      uses: Azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.DOCKER_REGISTRY }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build e Push no Azure ACR
+      run: |
+        cd ${{ env.APP_FOLDER }}
+        docker build . --file Dockerfile --tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER
+        docker tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER ${{ secrets.NOME_IMAGEM }}:latest
+        docker push ${{ secrets.NOME_IMAGEM }}
+  
+  deploy:
+    name: Deploying Az Web App
+    runs-on: ubunto-latest
+    needs: [ build ]
+    steps:
+
+      - name: Logando no Azure para Deployment
+        uses: Azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure WebApp Container - Deployment da Aplicacao
+        env:
+          WEB_APP: poc03webapp 
+        uses: Azure/webapps-container-deploy@v1
+        with:
+          app-name: ${{ env.WEB_APP }}
+          images: ${{ secrets.NOME_IMAGEM }}:latest
