@@ -5,7 +5,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["ApiFake/ApiFake.csproj", "ApiFake/"]
+COPY ["./ApiFake/ApiFake.csproj", "ApiFake/"]
 RUN dotnet restore "ApiFake/ApiFake.csproj"
 COPY . .
 WORKDIR "/src/ApiFake"
