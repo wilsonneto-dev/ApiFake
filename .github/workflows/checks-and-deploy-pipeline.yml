@@ -1,8 +1,9 @@
 name: Checks, Build, Publish, Deploy
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   
