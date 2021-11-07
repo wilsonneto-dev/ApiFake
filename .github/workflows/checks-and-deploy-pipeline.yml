@@ -50,8 +50,7 @@ jobs:
 
     - name: Build e Push no Azure ACR
       run: |
-        cd ${{ env.APP_FOLDER }}
-        docker build . --file Dockerfile --tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER
+        docker build ./${{ env.APP_FOLDER }}/ --file Dockerfile --tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER
         docker tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER ${{ secrets.NOME_IMAGEM }}:latest
         docker push ${{ secrets.NOME_IMAGEM }}
   
