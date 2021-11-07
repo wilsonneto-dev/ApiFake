@@ -69,8 +69,8 @@ jobs:
       - name: Azure WebApp Container - Deployment da Aplicacao
         env:
           WEB_APP: poc03webapp 
-        uses: Azure/webapps-container-deploy@v1
+        uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.WEB_APP }}
           images: ${{ secrets.NOME_IMAGEM }}:latest
-          slot: staging
+          slot-name: staging
