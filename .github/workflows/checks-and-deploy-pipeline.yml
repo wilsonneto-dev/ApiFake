@@ -50,15 +50,14 @@ jobs:
 
     - name: Build e Push no Azure ACR
       run: |
-        ls
-        pwd
-        docker build . --file /${{ env.APP_FOLDER }}/Dockerfile --tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER
+        docker build . --file ./${{ env.APP_FOLDER }}/Dockerfile --tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER
         docker tag ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER ${{ secrets.NOME_IMAGEM }}:latest
+        docker push ${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER
         docker push ${{ secrets.NOME_IMAGEM }}
   
   deploy:
     name: Deploying Az Web App
-    runs-on: ubunto-latest
+    runs-on: ubuntu-latest
     needs: [ build ]
     steps:
 
